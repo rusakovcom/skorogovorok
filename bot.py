@@ -1,41 +1,44 @@
-import telebot #импорт библиотеки
-import config
-import random
+import telebot # import of the telebot library, which is used for creating and managing Telegram bots with Python.
+from telebot import types # import module for keyboard in the chat
+import random # import library for random choise
 
-bot = telebot.TeleBot(config.TOKEN) # подключение токена бота из файла в этой же директории config.py после импорта Telebot (также можно в скобках ('%ваш токен%'))
+bot = telebot.TeleBot('TOKEN') # TOKEN and creating the object of the bot
 
-# В этом участке кода мы объявили слушателя для текстовых сообщений и метод их обработки. Поле content_types может принимать разные значения
-@bot.message_handler(content_types=['text', 'document', 'audio'])
-def get_text_messages(message):
-        # отработка кнопки старт
-        if message.text == "/start":
-                bot.send_message(message.from_user.id, "Введите нужное количество скороговорок или выберите в меню")
-        
-        # !!! вводят текст, имеющий в себе только цифру от 1 до 30
-        elif message.text.isdigit() == True: # проверка если введенный текст целое число и выполняется int
-                if int(message.text) in [k for k in range(1,31)]:
-                        for i in range (int(message.text)):
-                                c = random.choice(open('list.txt').readlines())
-                                bot.send_message(message.from_user.id, c)
-                elif int(message.text) > 30:
-                                bot.send_message(message.from_user.id, "Введено слишком большое число, максимально доступный вывод - 30 штук")
-                else:
-                        bot.send_message(message.from_user.id, "Некорректный запрос")
 
-        # отработка кнопок меню (сделать одним елифом и одной функцией)
-        elif message.text == "/1":
-                c = random.choice(open('list.txt').readlines())
-                bot.send_message(message.from_user.id, c)
-        elif message.text == "/5":
-                for i in range (5):
-                        c = random.choice(open('list.txt').readlines())
-                        bot.send_message(message.from_user.id, c)
-        elif message.text == "/10":
-                for i in range (10):
-                        c = random.choice(open('list.txt').readlines())
-                        bot.send_message(message.from_user.id, c)
-        else:
-                bot.send_message(message.from_user.id, "Некорректный запрос")
+@bot.message_handler(commands=['start']) # Create reciever of the start command
+def handle_start(message):
+    markup = types.ReplyKeyboardMarkup(row_width=2, one_time_keyboard=True, resize_keyboard=True) # Create keyboard with types of answer
+    
+    button1 = types.KeyboardButton("1")
+    button5 = types.KeyboardButton("5")
+    button3 = types.KeyboardButton("3")
+    button10 = types.KeyboardButton("10")
+    
+    markup.add(button1, button3, button5, button10)
+    
+    # send message to user with keyboard
+    bot.send_message(message.chat.id, "Выберите в меню какое количество скороговорок вывести:", reply_markup=markup)
 
-#RUN
-bot.polling(none_stop=True)
+
+@bot.message_handler(func=lambda message: True) # Create reciever of the buttons text and any other incorrect input
+def handle_number(message):
+    if message.text == "1":
+        c = random.choice(open('list.txt').readlines())
+        bot.send_message(message.from_user.id, c)
+    elif message.text == "3":
+        for i in range (3):
+            c = random.choice(open('list.txt').readlines())
+            bot.send_message(message.from_user.id, c)
+    elif message.text == "5":
+        for i in range (5):
+            c = random.choice(open('list.txt').readlines())
+            bot.send_message(message.from_user.id, c)
+    elif message.text == "10":
+        for i in range (10):
+            c = random.choice(open('list.txt').readlines())
+            bot.send_message(message.from_user.id, c)
+    else:
+        bot.send_message(message.from_user.id, "Выберите в меню какое количество скороговорок вывести:")
+
+
+bot.polling(none_stop=True) # continue send requests to Telegram servers for getting new messages by users
