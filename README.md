@@ -10,6 +10,10 @@ sudo apt install python3-pip
 pip install pyTelegramBotAPI
 
 
+Также генератор случайной скороговорки представлен в виде вэб сайта:
+/web-site
+
+
 
 
 
